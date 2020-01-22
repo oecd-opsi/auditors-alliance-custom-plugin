@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name:	Black Studio for OECD PISA for school
-Plugin URI:		https://oecdpisaforschools.org
+Plugin Name:	Black Studio for OECD Auditors Alliance
+Plugin URI:		https://auditorsalliance.org
 Description:	Custom functions.
 Version:		1.0.0
 Author:			Black Studio
@@ -37,3 +37,34 @@ function bs_enqueue_files() {
 	wp_enqueue_script( 'bs-script', plugin_dir_url( __FILE__ ) . 'assets/js/bs-script.js', '', '1.0.0', true );
 
 }
+
+// Gallery<->forum automation
+function gallery_forum_automation( $term_id, $tt_id, $taxonomy_slug ){
+
+	// Check if it's a new Gallery taxonomy term
+	if( 'gallery' != $taxonomy_slug )
+		return;
+
+	// Get new term data
+	$new_term = get_term( $term_id, $taxonomy_slug );
+
+	// Create a Forum with the name of the term and associate the new term as taxonomy
+	$forum_data = array(
+		'post_title'		=> $new_term->name,
+		'tax_input'			=> array(
+			'gallery' => array( $term_id ),
+		),
+	);
+	$new_forum_id = bbp_insert_forum( $forum_data );
+
+	// Create the first topic for Generic discussion
+	$topic_data = array(
+		'post_parent'		=> $new_forum_id,
+		'post_title'		=> 'General discussion',
+		'post_content'	=> 'Here you can discuss in general the subject of the gallery' . $new_term->name,
+	)
+
+	$first_topic_id = bbp_insert_topic( $topic_data );
+
+}
+add_action( 'create_term', 'gallery_forum_automation', 10, 3 );
