@@ -61,10 +61,55 @@ function gallery_forum_automation( $term_id, $tt_id, $taxonomy_slug ){
 	$topic_data = array(
 		'post_parent'		=> $new_forum_id,
 		'post_title'		=> 'General discussion',
-		'post_content'	=> 'Here you can discuss in general the subject of the gallery' . $new_term->name,
-	)
-
+		'post_content'	=> 'Here you can discuss the subject of the gallery',
+	);
 	$first_topic_id = bbp_insert_topic( $topic_data );
 
 }
 add_action( 'create_term', 'gallery_forum_automation', 10, 3 );
+
+// Content<->Topic automation
+function content_topic_automation( $ID, $post ) {
+
+	// Check if exists already a content-topic relationship
+	$related = toolset_get_related_post( $ID, 'content-topic');
+	if( $related > 0 )
+		return;
+
+	// Get the belonging gallery
+	$terms = get_the_terms( $ID, 'gallery' );
+	$gallery = $terms[0];
+	// If gallery exists, get the forum related to the gallery
+	if( $gallery ) {
+		$query = new WP_Query( array(
+	    'post_type' => 'forum',
+	    'tax_query' => array(
+        array (
+          'taxonomy' => 'gallery',
+          'field' => 'term_id',
+          'terms' => $gallery->term_id,
+        )
+	    ),
+		) );
+		$forum = $query->posts[0];
+	}
+
+	// If forum exists, create a topic with the name of the content
+	if( $forum ) {
+
+		$topic_data = array(
+			'post_parent'		=> $forum->ID,
+			'post_title'		=> $post->post_title,
+			'post_content'	=> 'Here you can discuss the topic of the content',
+		);
+		$topic_id = bbp_insert_topic( $topic_data );
+
+	}
+
+	// Set the relationship between the content and the topic
+	if( $topic_id ) {
+		toolset_connect_posts( 'content-topic', $ID, $topic_id );
+	}
+
+}
+add_action( 'publish_content', 'content_topic_automation', 10, 2);
