@@ -69,47 +69,53 @@ function gallery_forum_automation( $term_id, $tt_id, $taxonomy_slug ){
 add_action( 'create_term', 'gallery_forum_automation', 10, 3 );
 
 // Content<->Topic automation
-function content_topic_automation( $ID, $post ) {
+function content_topic_automation( $new_status, $old_status, $post ) {
 
-	// Check if exists already a content-topic relationship
-	$related = toolset_get_related_post( $ID, 'content-topic');
-	if( $related > 0 )
-		return;
+	if( 'publish' == $new_status && 'publish' != $old_status && 'content' == $post->post_type ) :
 
-	// Get the belonging gallery
-	$terms = get_the_terms( $ID, 'gallery' );
-	$gallery = $terms[0];
-	// If gallery exists, get the forum related to the gallery
-	if( $gallery ) {
-		$query = new WP_Query( array(
-	    'post_type' => 'forum',
-	    'tax_query' => array(
-        array (
-          'taxonomy' => 'gallery',
-          'field' => 'term_id',
-          'terms' => $gallery->term_id,
-        )
-	    ),
-		) );
-		$forum = $query->posts[0];
-	}
+		$ID = $post->ID;
 
-	// If forum exists, create a topic with the name of the content
-	if( $forum ) {
+		// Check if exists already a content-topic relationship
+		$related = toolset_get_related_post( $post, 'content-topic', 'child');
+		if( $related > 0 )
+			return;
 
-		$topic_data = array(
-			'post_parent'		=> $forum->ID,
-			'post_title'		=> $post->post_title,
-			'post_content'	=> 'Here you can discuss the topic of the content',
-		);
-		$topic_id = bbp_insert_topic( $topic_data );
+		// Get the belonging gallery
+		$terms = get_the_terms( $ID, 'gallery' );
+		$gallery = $terms[0];
+		// If gallery exists, get the forum related to the gallery
+		if( $gallery ) {
+			$query = new WP_Query( array(
+		    'post_type' => 'forum',
+		    'tax_query' => array(
+	        array (
+	          'taxonomy' => 'gallery',
+	          'field' => 'term_id',
+	          'terms' => $gallery->term_id,
+	        )
+		    ),
+			) );
+			$forum = $query->posts[0];
+		}
 
-	}
+		// If forum exists, create a topic with the name of the content
+		if( $forum ) {
 
-	// Set the relationship between the content and the topic
-	if( $topic_id ) {
-		toolset_connect_posts( 'content-topic', $ID, $topic_id );
-	}
+			$topic_data = array(
+				'post_parent'		=> $forum->ID,
+				'post_title'		=> $post->post_title,
+				'post_content'	=> 'Here you can discuss the topic of the content',
+			);
+			$topic_id = bbp_insert_topic( $topic_data );
+
+		}
+
+		// Set the relationship between the content and the topic
+		if( $topic_id ) {
+			toolset_connect_posts( 'content-topic', $ID, $topic_id );
+		}
+
+	endif;
 
 }
-add_action( 'publish_content', 'content_topic_automation', 10, 2);
+add_action( 'transition_post_status', 'content_topic_automation', 10, 3);
