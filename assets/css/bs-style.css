@@ -28,3 +28,102 @@
   width: auto;
   z-index: 100000; /* Above WP toolbar. */
 }
+
+/* FORUM BANNERS */
+.bs-forum-banner {
+  margin: 30px 70px;
+  padding: 18px;
+  box-shadow: 0 3px 3px #444;
+  font-size: 14px;
+  position: relative;
+  background-color: #fff;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.bs-forum-banner h2 {
+  font-size: 26px;
+}
+
+.bs-forum-banner h2,
+.bs-forum-banner p,
+.bs-forum-banner ul,
+.bs-forum-banner ol {
+  margin-bottom: 16px;
+}
+
+.bs-forum-banner h2:last-child,
+.bs-forum-banner p:last-child,
+.bs-forum-banner ul:last-child,
+.bs-forum-banner ol:last-child {
+  margin-bottom: 0;
+}
+
+.bs-forum-banner ul {
+  list-style: disc;
+  padding-left: 16px;
+}
+
+.bs-forum-banner-cta-wrapper {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}
+
+.bs-close-forum-banner,
+#close-notice {
+  width: auto;
+  padding: 8px 10px;
+  line-height: 1;
+}
+
+.bs-forum-banner-w-bg {
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  border: none;
+  z-index: 0;
+}
+
+.bs-forum-banner-w-bg::before {
+  content: "";
+  display: block;
+  background: rgba(4, 44, 65, 0.7);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+}
+
+.bs-forum-banner-w-bg h2,
+.bs-forum-banner-w-bg p,
+.bs-forum-banner-w-bg ul,
+.bs-forum-banner-w-bg ol {
+  color: #fff;
+}
+
+.bs-one-line-banner {
+  font-size: 16px;
+  box-shadow: none;
+  background: rgba(100, 170, 195, .23) !important;
+  color: #042C41;
+  padding: 12px 16px;
+}
+
+.bs-one-line-banner a {
+  color: #309CD5;
+}
+
+.bs-one-line-banner .bs-forum-banner-cta-wrapper {
+  top: 0;
+  right: 0;
+}
+
+.bs-one-line-banner .bs-close-forum-banner {
+  background: transparent;
+  color: #0076A0;
+  font-size: 27px;
+  padding: 9px 10px 8px;
+}

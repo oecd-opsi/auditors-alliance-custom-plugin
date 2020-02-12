@@ -119,3 +119,44 @@ function content_topic_automation( $new_status, $old_status, $post ) {
 
 }
 add_action( 'transition_post_status', 'content_topic_automation', 10, 3);
+
+//* Forum banner
+function bs_display_forum_banner() {
+
+	// get closed banner ids
+	$closed_banner_comma_list = '';
+	if( isset( $_COOKIE['closedBanner'] ) ) {
+
+		$closed_banner_comma_list = str_replace( array( '[', '\"', ']' ), '', $_COOKIE['closedBanner'] );
+
+	}
+
+	// create target array
+	$target = array( 'everyone' );
+
+		// check if user is new (registered less than 15 days ago)
+		$now = time();
+		$current_user_data = get_userdata( get_current_user_id() );
+		$date_diff = $now - strtotime( $current_user_data->user_registered );
+		$date_diff_day = round( $date_diff / ( 60 * 60 * 24 ) );
+		if ( $date_diff_day <= 15 ) {
+			$target[] = 'new';
+		}
+
+		// check if user is very active on forum (more than 50 topic and reply)
+		$topic_reply_sum = bbp_get_user_reply_count_raw( get_current_user_id() ) + bbp_get_user_topic_count_raw( get_current_user_id() );
+		if ( $topic_reply_sum > 50 ) {
+			$target[] = 'top';
+		}
+
+	$target_comma_list = rtrim(implode(',', $target), ',');
+
+	$args = array(
+    'id' 						=> 220,
+		'closedbanner'	=> $closed_banner_comma_list,
+		'target'				=> $target_comma_list,
+	);
+	echo render_view( $args );
+
+}
+add_action( 'buddyboss_inside_wrapper', 'bs_display_forum_banner', 40 );
