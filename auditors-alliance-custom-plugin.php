@@ -160,3 +160,33 @@ function bs_display_forum_banner() {
 
 }
 add_action( 'buddyboss_inside_wrapper', 'bs_display_forum_banner', 40 );
+
+// Enable visual editor in bbPress
+function bbp_enable_visual_editor( $args = array() ) {
+  if ( !is_page( 'register' )) {
+    $args['tinymce'] = true;
+    $args['quicktags'] = false;
+  }
+  return $args;
+}
+add_filter( 'bbp_after_get_the_content_parse_args', 'bbp_enable_visual_editor' );
+
+// Add reply button after post in forum
+add_filter( 'bbp_get_reply_content', 'bs_reply_button', 91 );
+function bs_reply_button( $content ) {
+  echo $content . '<div class="bs-reply-btn-wrapper"><a href="#new-post" class="button">Reply</a></div>';
+}
+
+// Enable mention autocomplete in bbPress
+function buddydev_enable_mention_autosuggestions_on_compose( $load, $mentions_enabled ) {
+	if ( ! $mentions_enabled ) {
+		return $load; //activity mention is  not enabled, so no need to bother
+	}
+	//modify this condition to suit yours
+	if( is_user_logged_in() ) {
+		$load = true;
+	}
+
+	return $load;
+}
+add_filter( 'bp_activity_maybe_load_mentions_scripts', 'buddydev_enable_mention_autosuggestions_on_compose', 10, 2 );
