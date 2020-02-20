@@ -123,6 +123,9 @@ add_action( 'transition_post_status', 'content_topic_automation', 10, 3);
 //* Forum banner
 function bs_display_forum_banner() {
 
+	if ( !is_user_logged_in() )
+		return;
+
 	// get closed banner ids
 	$closed_banner_comma_list = '';
 	if( isset( $_COOKIE['closedBanner'] ) ) {
