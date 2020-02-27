@@ -54,4 +54,10 @@ function closeBanner(e) {
 
 }
 
-bannerCloseBtns.forEach( button => button.addEventListener( 'click', closeBanner ) );
+if( bannerCloseBtns.length > 0 ) {
+
+  bannerCloseBtns.forEach( function( button ) {
+    button.addEventListener( 'click', closeBanner );
+  });
+
+}
