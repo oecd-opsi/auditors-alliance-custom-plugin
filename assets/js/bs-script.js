@@ -28,7 +28,7 @@ function getCookie(c_name) {
   return "";
 }
 
-const bannerCloseBtns = document.querySelectorAll( '.bs-close-forum-banner' );
+let bannerCloseBtns = document.querySelectorAll( '.bs-close-forum-banner' );
 
 function closeBanner(e) {
 
@@ -55,6 +55,8 @@ function closeBanner(e) {
 }
 
 if( bannerCloseBtns.length > 0 ) {
+
+  bannerCloseBtns = Array.prototype.slice.call(bannerCloseBtns); // convert NodeList to array, so it works on IE11
 
   bannerCloseBtns.forEach( function( button ) {
     button.addEventListener( 'click', closeBanner );
