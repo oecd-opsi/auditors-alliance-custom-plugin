@@ -43,6 +43,7 @@
 
 .bs-forum-banner h2 {
   font-size: 26px;
+  text-transform: none;
 }
 
 .bs-forum-banner h2,
