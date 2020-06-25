@@ -62,6 +62,7 @@ function gallery_forum_automation( $term_id, $tt_id, $taxonomy_slug ){
 		'post_parent'		=> $new_forum_id,
 		'post_title'		=> 'General discussion',
 		'post_content'	=> 'Here you can discuss the subject of the gallery',
+		'post_author' 	=> 14,
 	);
 	$first_topic_id = bbp_insert_topic( $topic_data );
 
@@ -105,6 +106,7 @@ function content_topic_automation( $new_status, $old_status, $post ) {
 				'post_parent'		=> $forum->ID,
 				'post_title'		=> $post->post_title,
 				'post_content'	=> 'Here you can discuss the topic of the content',
+				'post_author' 	=> 14,
 			);
 			$topic_id = bbp_insert_topic( $topic_data );
 
