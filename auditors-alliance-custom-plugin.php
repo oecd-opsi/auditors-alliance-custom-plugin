@@ -105,7 +105,7 @@ function content_topic_automation( $new_status, $old_status, $post ) {
 			$topic_data = array(
 				'post_parent'		=> $forum->ID,
 				'post_title'		=> $post->post_title,
-				'post_content'	=> 'Here you can discuss the topic of the content',
+				'post_content'	=> 'Join the discussion and share your comments on this piece',
 				'post_author' 	=> 14,
 			);
 			$topic_id = bbp_insert_topic( $topic_data );
