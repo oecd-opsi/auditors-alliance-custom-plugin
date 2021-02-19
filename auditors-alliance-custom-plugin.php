@@ -195,3 +195,73 @@ function buddydev_enable_mention_autosuggestions_on_compose( $load, $mentions_en
 	return $load;
 }
 add_filter( 'bp_activity_maybe_load_mentions_scripts', 'buddydev_enable_mention_autosuggestions_on_compose', 10, 2 );
+
+// Send notification to user that has been approved
+// Create custom BP email post
+function bs_user_approved_email_message() {
+	print_r('test');
+  // Do not create if it already exists and is not in the trash
+  $post_exists = post_exists( '[{{{site.name}}}] Your account has been approved.' );
+
+  if ( $post_exists != 0 && get_post_status( $post_exists ) == 'publish' )
+    return;
+
+  // Create post object
+  $my_post = array(
+    'post_title'    => __( '[{{{site.name}}}] Your account has been approved.', 'buddypress' ),
+    'post_content'  => __( 'Hi {{user.name}}, your account has been approved.', 'buddypress' ),  // HTML email content.
+    'post_excerpt'  => __( 'Hi {{user.name}}, your account has been approved.', 'buddypress' ),  // Plain text email content.
+    'post_status'   => 'publish',
+    'post_type' => bp_get_email_post_type() // this is the post type for emails
+  );
+
+  // Insert the email post into the database
+  $post_id = wp_insert_post( $my_post );
+
+  if ( $post_id ) {
+  	// add our email to the taxonomy term 'user_approved'
+    // Email is a custom post type, therefore use wp_set_object_terms
+    $tt_ids = wp_set_object_terms( $post_id, 'user_approved', bp_get_email_tax_type() );
+    foreach ( $tt_ids as $tt_id ) {
+      $term = get_term_by( 'term_taxonomy_id', (int) $tt_id, bp_get_email_tax_type() );
+      wp_update_term( (int) $term->term_id, bp_get_email_tax_type(), array(
+        'description' => 'Recipient account has been approved',
+      ) );
+    }
+  }
+
+}
+add_action( 'bp_core_install_emails', 'bs_user_approved_email_message' );
+// Send email
+function bs_user_approved_notification( $user_id, $key, $user ) {
+
+  if ( $user_id ) {
+    // get the user data
+    $user_info = get_userdata( $user_id );
+    // add tokens to parse in email
+    $args = array(
+      'tokens' => array(
+        'site.name' => get_bloginfo( 'name' ),
+        'user.name' => $user_info->user_login,
+      ),
+    );
+    // send args and user ID to receive email
+    bp_send_email( 'user_approved', (int) $user_id, $args );
+  }
+}
+add_action( 'bp_core_activated_user', 'bs_user_approved_notification', 10, 3 );
+
+// Set messages to HTML
+remove_filter( 'wp_mail_content_type', 'set_html_content_type' );
+add_filter( 'wp_mail_content_type', 'set_html_content_type' );
+function set_html_content_type() {
+  return 'text/html';
+}
+// Use HTML template
+add_filter( 'bp_email_get_content_plaintext', 'get_bp_email_content_plaintext', 10, 4 );
+function get_bp_email_content_plaintext( $content = '', $property = 'content_plaintext', $transform = 'replace-tokens', $bp_email ) {
+  if ( ! did_action( 'bp_send_email' ) ) {
+    return $content;
+  }
+  return $bp_email->get_template( 'add-content' );
+}
